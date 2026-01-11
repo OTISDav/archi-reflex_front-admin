@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   return (
     <section className="dashboard">
       <div className="dashboard-inner">
@@ -20,7 +23,11 @@ export default function Dashboard() {
             <strong className="card-value">—</strong>
           </div>
 
-          <div className="dashboard-card">
+          {/* Carte Projets cliquable */}
+          <div
+            className="dashboard-card cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate("/admin/projects")}
+          >
             <span className="card-label">Projets</span>
             <strong className="card-value">—</strong>
           </div>
