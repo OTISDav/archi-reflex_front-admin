@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
+import "./Login.css";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -26,17 +27,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-10 w-full max-w-md shadow"
-      >
-        <h1 className="text-2xl mb-8">Admin Login</h1>
+    <div className="login">
+      <form onSubmit={handleSubmit} className="login-card">
+        <h1 className="login-title">ADMIN</h1>
+        <p className="login-subtitle">Accès sécurisé</p>
 
         <input
           name="username"
           placeholder="Nom d’utilisateur"
-          className="w-full mb-4 border p-3"
           required
         />
 
@@ -44,14 +42,10 @@ export default function Login() {
           type="password"
           name="password"
           placeholder="Mot de passe"
-          className="w-full mb-6 border p-3"
           required
         />
 
-        <button
-          disabled={loading}
-          className="w-full bg-black text-white py-3"
-        >
+        <button disabled={loading}>
           {loading ? "Connexion..." : "Se connecter"}
         </button>
       </form>

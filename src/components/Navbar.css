@@ -1,0 +1,130 @@
+/* Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Navbar global */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: black;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  transition: height 0.3s;
+}
+
+/* Conteneur principal */
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 96px; /* hauteur desktop */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+/* Logo */
+.logo {
+  font-size: 14px;
+  letter-spacing: 0.5em;
+  font-weight: 300;
+  color: white;
+}
+
+/* Liens desktop */
+.nav-links {
+  display: flex;
+  gap: 56px; /* espace entre les liens */
+  align-items: center;
+}
+
+.nav-link {
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: white;
+}
+
+.nav-link .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: white;
+  width: 0;
+  transition: width 0.3s;
+}
+
+.nav-link.active .underline {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: white;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  font-size: 28px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Mobile slide menu */
+.mobile-slide-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 250px;
+  height: 100%;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 30px;
+  transition: right 0.3s ease;
+  z-index: 999;
+}
+
+/* Menu ouvert */
+.mobile-slide-menu.open {
+  right: 0;
+}
+
+/* Croix de fermeture */
+.mobile-menu-close {
+  font-size: 28px;
+  color: white;
+  background: none;
+  border: none;
+  align-self: flex-end;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar-container {
+    height: 60px; /* hauteur réduite sur mobile */
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+}
