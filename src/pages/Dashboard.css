@@ -8,10 +8,10 @@
   padding: 0;
 }
 
-/* Contenu principal — plus de padding horizontal */
+/* Contenu principal */
 .dashboard-inner {
   width: 100%;
-  padding: 64px 0; /* seulement padding haut/bas */
+  padding: 64px 0; /* padding top/bottom */
 }
 
 /* Header */
@@ -37,7 +37,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  width: 100%; /* supprime max-width pour full-width */
+  width: 100%;
 }
 
 /* Card */
@@ -66,4 +66,47 @@
 .card-value {
   font-size: 2.2rem;
   font-weight: 300;
+}
+
+/* --------- Responsive --------- */
+
+/* Tablette (768px) */
+@media screen and (max-width: 1024px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .dashboard-card {
+    padding: 32px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile (480px) */
+@media screen and (max-width: 480px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dashboard-card {
+    padding: 24px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 32px;
+    padding: 0 16px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.85rem;
+  }
 }
