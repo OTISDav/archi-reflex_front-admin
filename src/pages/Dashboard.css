@@ -1,5 +1,4 @@
-/* Page globale */
-.dashboard {
+/* Page globale */.dashboard {
   min-height: 100vh;
   width: 100vw;
   background-color: #0b0b0b;
@@ -8,13 +7,13 @@
   padding: 0;
 }
 
-/* Contenu principal */
+
 .dashboard-inner {
   width: 100%;
-  padding: 64px 0; /* padding top/bottom */
+  padding: 64px 0; 
 }
 
-/* Header */
+
 .dashboard-header {
   margin-bottom: 64px;
 }
@@ -32,7 +31,6 @@
   color: #9ca3af;
 }
 
-/* Cards container */
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -40,7 +38,6 @@
   width: 100%;
 }
 
-/* Card */
 .dashboard-card {
   background: linear-gradient(180deg, #141414, #0f0f0f);
   border: 1px solid #1f1f1f;
@@ -53,7 +50,6 @@
   transform: translateY(-4px);
 }
 
-/* Texte carte */
 .card-label {
   font-size: 0.75rem;
   letter-spacing: 0.25em;
@@ -68,9 +64,7 @@
   font-weight: 300;
 }
 
-/* --------- Responsive --------- */
 
-/* Tablette (768px) */
 @media screen and (max-width: 1024px) {
   .dashboard-cards {
     grid-template-columns: repeat(2, 1fr);
@@ -86,7 +80,7 @@
   }
 }
 
-/* Mobile (480px) */
+
 @media screen and (max-width: 480px) {
   .dashboard-cards {
     grid-template-columns: 1fr;
