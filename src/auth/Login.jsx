@@ -16,9 +16,12 @@ export default function Login() {
         password: e.target.password.value,
       });
 
-      localStorage.setItem("admin_token", res.data.token);
+      // ⚡ Stockage du JWT correct
+      localStorage.setItem("admin_token", res.data.access);
+      localStorage.setItem("admin_refresh_token", res.data.refresh);
+
       toast.success("Connexion réussie");
-      window.location.href = "/admin";
+      window.location.href = "/admin"; // redirection vers dashboard
     } catch {
       toast.error("Identifiants invalides");
     } finally {

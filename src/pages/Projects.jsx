@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios"; // ton axios avec Token
+import api from "../api/axios"; // axios avec Bearer JWT
 import "./Dashboard.css";
 
 export default function ProjectsAdmin() {
@@ -7,7 +7,6 @@ export default function ProjectsAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Formulaire ajout/modification
   const [form, setForm] = useState({
     id: null,
     title: "",
@@ -18,7 +17,6 @@ export default function ProjectsAdmin() {
   });
   const [formVisible, setFormVisible] = useState(false);
 
-  // ⚡ Charger les projets au montage
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -26,7 +24,7 @@ export default function ProjectsAdmin() {
   const fetchProjects = () => {
     setLoading(true);
     api
-      .get("/projects/projects/") // route corrigée
+      .get("/projects/projects/admin/") // on laisse l’URL comme tu veux
       .then((res) => {
         setProjects(res.data);
         setLoading(false);
@@ -40,7 +38,6 @@ export default function ProjectsAdmin() {
       });
   };
 
-  // ⚡ Gestion du formulaire
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({
@@ -60,18 +57,23 @@ export default function ProjectsAdmin() {
       if (form.image) formData.append("image", form.image);
 
       if (form.id) {
-        // Modification
-        await api.put(`/projects/projects/${form.id}/`, formData, {
+        await api.put(`/projects/projects/admin/${form.id}/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        // Création
-        await api.post("/projects/projects/", formData, {
+        await api.post("/projects/projects/admin/", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
 
-      setForm({ id: null, title: "", description: "", project_type: "", year: "", image: null });
+      setForm({
+        id: null,
+        title: "",
+        description: "",
+        project_type: "",
+        year: "",
+        image: null,
+      });
       setFormVisible(false);
       fetchProjects();
     } catch (err) {
@@ -87,7 +89,7 @@ export default function ProjectsAdmin() {
       description: project.description,
       project_type: project.project_type,
       year: project.year,
-      image: null, // nouvelle image si besoin
+      image: null,
     });
     setFormVisible(true);
   };
@@ -95,7 +97,7 @@ export default function ProjectsAdmin() {
   const handleDelete = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce projet ?")) return;
     try {
-      await api.delete(`/projects/projects/${id}/`); // DELETE route corrigée
+      await api.delete(`/projects/projects/admin/${id}/`);
       fetchProjects();
     } catch (err) {
       console.error(err);
@@ -116,7 +118,10 @@ export default function ProjectsAdmin() {
 
         {/* Formulaire */}
         {formVisible && (
-          <form className="mb-6 p-4 border rounded bg-white shadow" onSubmit={handleSubmit}>
+          <form
+            className="mb-6 p-4 border rounded bg-white shadow"
+            onSubmit={handleSubmit}
+          >
             <input
               type="text"
               name="title"

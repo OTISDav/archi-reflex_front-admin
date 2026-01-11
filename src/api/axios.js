@@ -5,10 +5,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("admin_token");
+  const token = localStorage.getItem("admin_token"); // ton JWT
   if (token) {
-    // <-- ici on met Token au lieu de Bearer
-    config.headers.Authorization = `Token ${token}`;
+    config.headers.Authorization = `Bearer ${token}`; // <-- JWT
   }
   return config;
 });
