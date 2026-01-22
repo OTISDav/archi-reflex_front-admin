@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "../api/axios";
 import "./Dashboard.css";
 
@@ -8,7 +10,7 @@ export default function AppointmentsAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [filter, setFilter] = useState("all"); // all | pending | confirmed | cancelled
+  const [filter, setFilter] = useState("all"); // all | pending | accepted | rejected
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -24,9 +26,7 @@ export default function AppointmentsAdmin() {
       setFilteredAppointments(res.data);
     } catch (err) {
       console.error(err);
-      setError(
-        "Impossible de charger les rendez-vous. Vérifie ton token admin."
-      );
+      setError("Impossible de charger les rendez-vous. Vérifie ton token admin.");
     } finally {
       setLoading(false);
     }
@@ -36,13 +36,26 @@ export default function AppointmentsAdmin() {
   // ✏️ Modifier le statut
   // ==========================
   const updateStatus = async (id, status) => {
+    const apt = appointments.find((a) => a.id === id);
+
+    // 🔒 Empêcher rejected → accepted
+    if (apt.status === "rejected" && status === "accepted") {
+      toast.error("Impossible de confirmer un rendez-vous déjà refusé");
+      return;
+    }
+
     setUpdatingId(id);
     try {
       await api.patch(`/appointments/admin/appointments/${id}/`, { status });
+      toast.success(
+        status === "accepted"
+          ? "Rendez-vous confirmé"
+          : "Rendez-vous refusé"
+      );
       await fetchAppointments();
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la mise à jour du statut.");
+      toast.error("Erreur lors de la mise à jour du statut");
     } finally {
       setUpdatingId(null);
     }
@@ -71,15 +84,15 @@ export default function AppointmentsAdmin() {
   }, [filter, search, appointments]);
 
   // ==========================
-  // 🎨 Couleur du statut
+  // 🎨 Couleur + label du statut
   // ==========================
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
         return "bg-yellow-500";
-      case "confirmed":
+      case "accepted":
         return "bg-green-600";
-      case "cancelled":
+      case "rejected":
         return "bg-red-600";
       default:
         return "bg-gray-500";
@@ -90,24 +103,28 @@ export default function AppointmentsAdmin() {
     switch (status) {
       case "pending":
         return "En attente";
-      case "confirmed":
+      case "accepted":
         return "Confirmé";
-      case "cancelled":
-        return "Annulé";
+      case "rejected":
+        return "Refusé";
       default:
         return status;
     }
   };
 
   // ==========================
-  // 🚀 On mount
+  // 🚀 On mount (chargement initial uniquement)
   // ==========================
   useEffect(() => {
     fetchAppointments();
   }, []);
 
+  // ==========================
+  // UI
+  // ==========================
   return (
     <section className="dashboard">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="dashboard-inner">
         <header className="dashboard-header">
           <h1>Rendez-vous – Admin</h1>
@@ -115,7 +132,7 @@ export default function AppointmentsAdmin() {
 
           {/* Filtres */}
           <div className="flex gap-2 mt-3 flex-wrap">
-            {["all", "pending", "confirmed", "cancelled"].map((f) => (
+            {["all", "pending", "accepted", "rejected"].map((f) => (
               <button
                 key={f}
                 className={`px-3 py-1 rounded text-white ${
@@ -123,9 +140,7 @@ export default function AppointmentsAdmin() {
                 }`}
                 onClick={() => setFilter(f)}
               >
-                {f === "all"
-                  ? "Tous"
-                  : f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === "all" ? "Tous" : getStatusLabel(f)}
               </button>
             ))}
 
@@ -170,29 +185,26 @@ export default function AppointmentsAdmin() {
                   {getStatusLabel(apt.status)}
                 </span>
 
-                <div className="mt-4 flex gap-2">
-                  {apt.status !== "confirmed" && (
+                {/* Actions */}
+                {apt.status === "pending" && (
+                  <div className="mt-4 flex gap-2">
                     <button
                       disabled={updatingId === apt.id}
                       className="btn btn-edit"
-                      onClick={() => updateStatus(apt.id, "confirmed")}
+                      onClick={() => updateStatus(apt.id, "accepted")}
                     >
-                      {updatingId === apt.id
-                        ? "Traitement..."
-                        : "Confirmer"}
+                      {updatingId === apt.id ? "Traitement..." : "Confirmer"}
                     </button>
-                  )}
 
-                  {apt.status !== "cancelled" && (
                     <button
                       disabled={updatingId === apt.id}
                       className="btn btn-delete"
-                      onClick={() => updateStatus(apt.id, "cancelled")}
+                      onClick={() => updateStatus(apt.id, "rejected")}
                     >
-                      Annuler
+                      Refuser
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
