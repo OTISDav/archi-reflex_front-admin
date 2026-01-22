@@ -14,9 +14,7 @@ export default function AppointmentsAdmin() {
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
 
-  // ==========================
   // 🔄 Charger les RDV
-  // ==========================
   const fetchAppointments = async () => {
     setLoading(true);
     setError(null);
@@ -32,11 +30,14 @@ export default function AppointmentsAdmin() {
     }
   };
 
-  // ==========================
-  // ✏️ Modifier le statut
-  // ==========================
+  // ✏️ Modifier le statut (update local state pour UI immédiate)
   const updateStatus = async (id, status) => {
     const apt = appointments.find((a) => a.id === id);
+
+    if (!apt) {
+      toast.error("Rendez-vous introuvable");
+      return;
+    }
 
     // 🔒 Empêcher rejected → accepted
     if (apt.status === "rejected" && status === "accepted") {
@@ -45,14 +46,18 @@ export default function AppointmentsAdmin() {
     }
 
     setUpdatingId(id);
+
     try {
+      // PATCH vers le backend
       await api.patch(`/appointments/admin/appointments/${id}/`, { status });
-      toast.success(
-        status === "accepted"
-          ? "Rendez-vous confirmé"
-          : "Rendez-vous refusé"
+
+      // ⚡ Mise à jour locale immédiate pour UI
+      const updatedAppointments = appointments.map((a) =>
+        a.id === id ? { ...a, status } : a
       );
-      await fetchAppointments();
+      setAppointments(updatedAppointments);
+
+      toast.success(status === "accepted" ? "Rendez-vous confirmé" : "Rendez-vous refusé");
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la mise à jour du statut");
@@ -61,31 +66,27 @@ export default function AppointmentsAdmin() {
     }
   };
 
-  // ==========================
   // 🔍 Filtres + recherche
-  // ==========================
   useEffect(() => {
     let filtered = [...appointments];
 
-    if (filter !== "all") {
-      filtered = filtered.filter((apt) => apt.status === filter);
-    }
+    if (filter !== "all") filtered = filtered.filter((apt) => apt.status === filter);
 
     if (search.trim()) {
       const q = search.toLowerCase();
       filtered = filtered.filter(
         (apt) =>
           apt.name.toLowerCase().includes(q) ||
-          apt.email.toLowerCase().includes(q)
+          apt.email.toLowerCase().includes(q) ||
+          apt.phone.toLowerCase().includes(q) ||
+          (apt.project_type && apt.project_type.toLowerCase().includes(q))
       );
     }
 
     setFilteredAppointments(filtered);
   }, [filter, search, appointments]);
 
-  // ==========================
   // 🎨 Couleur + label du statut
-  // ==========================
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -112,16 +113,11 @@ export default function AppointmentsAdmin() {
     }
   };
 
-  // ==========================
-  // 🚀 On mount (chargement initial uniquement)
-  // ==========================
+  // 🚀 Chargement initial
   useEffect(() => {
     fetchAppointments();
   }, []);
 
-  // ==========================
-  // UI
-  // ==========================
   return (
     <section className="dashboard">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -130,24 +126,20 @@ export default function AppointmentsAdmin() {
           <h1>Rendez-vous – Admin</h1>
           <p>Validation et gestion des rendez-vous clients</p>
 
-          {/* Filtres */}
           <div className="flex gap-2 mt-3 flex-wrap">
             {["all", "pending", "accepted", "rejected"].map((f) => (
               <button
                 key={f}
-                className={`px-3 py-1 rounded text-white ${
-                  filter === f ? "bg-blue-600" : "bg-gray-700"
-                }`}
+                className={`px-3 py-1 rounded text-white ${filter === f ? "bg-blue-600" : "bg-gray-700"}`}
                 onClick={() => setFilter(f)}
               >
                 {f === "all" ? "Tous" : getStatusLabel(f)}
               </button>
             ))}
 
-            {/* Recherche */}
             <input
               type="text"
-              placeholder="Rechercher par nom ou email"
+              placeholder="Rechercher par nom, email ou téléphone"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="input ml-2"
@@ -156,7 +148,6 @@ export default function AppointmentsAdmin() {
           </div>
         </header>
 
-        {/* Contenu */}
         {loading ? (
           <p>Chargement des rendez-vous...</p>
         ) : error ? (
@@ -168,24 +159,17 @@ export default function AppointmentsAdmin() {
             {filteredAppointments.map((apt) => (
               <div key={apt.id} className="dashboard-card">
                 <span className="card-label">{apt.name}</span>
+                <p className="text-sm"><strong>Email:</strong> {apt.email}</p>
+                <p className="text-sm"><strong>Téléphone:</strong> {apt.phone}</p>
+                <p className="text-sm"><strong>Projet:</strong> {apt.project_type || "-"}</p>
+                <p className="text-sm"><strong>Message:</strong> {apt.message || "-"}</p>
+                <p className="text-sm"><strong>Date:</strong> {apt.date} à {apt.time}</p>
+                {/* <p className="text-xs text-gray-400"><strong>Créé le:</strong> {apt.created_at?.slice(0, 10)}</p> */}
 
-                <p className="text-sm">{apt.email}</p>
-                <p className="text-sm">{apt.phone}</p>
-                <p className="text-sm">{apt.project_type}</p>
-
-                <p className="text-sm">
-                  📅 {apt.date} à {apt.time}
-                </p>
-
-                <span
-                  className={`inline-block mt-2 text-xs text-white px-2 py-1 rounded ${getStatusColor(
-                    apt.status
-                  )}`}
-                >
+                <span className={`inline-block mt-2 text-xs text-white px-2 py-1 rounded ${getStatusColor(apt.status)}`}>
                   {getStatusLabel(apt.status)}
                 </span>
 
-                {/* Actions */}
                 {apt.status === "pending" && (
                   <div className="mt-4 flex gap-2">
                     <button

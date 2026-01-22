@@ -42,17 +42,19 @@ export default function Dashboard() {
 
   // 🔹 useEffect global
   useEffect(() => {
-    setLoading(true);
-    Promise.all([fetchAppointments(), fetchProjects(), fetchInternships()]).finally(() =>
-      setLoading(false)
-    );
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchAppointments(), fetchProjects(), fetchInternships()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   // 🔹 Stats RDV
   const totalRDV = appointments.length;
   const pendingRDV = appointments.filter((a) => a.status === "pending").length;
-  const confirmedRDV = appointments.filter((a) => a.status === "confirmed").length;
-  const cancelledRDV = appointments.filter((a) => a.status === "cancelled").length;
+  const acceptedRDV = appointments.filter((a) => a.status === "accepted").length;
+  const rejectedRDV = appointments.filter((a) => a.status === "rejected").length;
 
   return (
     <section className="dashboard">
@@ -75,8 +77,8 @@ export default function Dashboard() {
               <strong className="card-value">{totalRDV}</strong>
               <p className="text-sm">Total</p>
               <p className="text-xs text-yellow-400">En attente: {pendingRDV}</p>
-              <p className="text-xs text-green-400">Confirmés: {confirmedRDV}</p>
-              <p className="text-xs text-red-400">Annulés: {cancelledRDV}</p>
+              <p className="text-xs text-green-400">Acceptés: {acceptedRDV}</p>
+              <p className="text-xs text-red-400">Refusés: {rejectedRDV}</p>
             </div>
 
             {/* Carte Stages */}
