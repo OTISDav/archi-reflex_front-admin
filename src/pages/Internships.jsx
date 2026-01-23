@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios"; 
+import api from "../api/axios";
 import "./Dashboard.css";
 
 export default function InternshipsAdmin() {
@@ -9,10 +9,18 @@ export default function InternshipsAdmin() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
+  // 📄 Extraire le nom du fichier depuis l’URL renvoyée par le serializer
+  const getFileName = (url) => {
+    if (!url) return "document.pdf";
+    return decodeURIComponent(url.split("/").pop());
+  };
+
+  // 🔄 Charger les demandes
   const fetchInternships = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await api.get("/internships/admin/"); // endpoint Django
+      const res = await api.get("/internships/admin/");
       setInternships(res.data);
       setFilteredInternships(res.data);
     } catch (err) {
@@ -27,28 +35,28 @@ export default function InternshipsAdmin() {
     fetchInternships();
   }, []);
 
-  // Filtrage par nom/email/phone/école
+  // 🔍 Recherche
   useEffect(() => {
     let filtered = [...internships];
-    if (search.trim() !== "") {
-      const lower = search.toLowerCase();
+    if (search.trim()) {
+      const q = search.toLowerCase();
       filtered = filtered.filter(
         (i) =>
-          i.name.toLowerCase().includes(lower) ||
-          i.email.toLowerCase().includes(lower) ||
-          i.phone.toLowerCase().includes(lower) ||
-          (i.school && i.school.toLowerCase().includes(lower))
+          i.name.toLowerCase().includes(q) ||
+          i.email.toLowerCase().includes(q) ||
+          i.phone.toLowerCase().includes(q) ||
+          (i.school && i.school.toLowerCase().includes(q))
       );
     }
     setFilteredInternships(filtered);
   }, [search, internships]);
 
-  // Supprimer une demande
+  // 🗑️ Supprimer
   const handleDelete = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer cette demande ?")) return;
     try {
       await api.delete(`/internships/admin/${id}/`);
-      fetchInternships();
+      setInternships((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
       console.error(err);
       alert("Erreur lors de la suppression.");
@@ -64,7 +72,7 @@ export default function InternshipsAdmin() {
 
           <input
             type="text"
-            placeholder="Rechercher par nom, email, numéro ou école"
+            placeholder="Rechercher par nom, email, téléphone ou école"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input mt-2"
@@ -83,44 +91,47 @@ export default function InternshipsAdmin() {
             {filteredInternships.map((i) => (
               <div key={i.id} className="dashboard-card">
                 <span className="card-label">{i.name}</span>
-                <p className="text-sm mb-1">{i.email}</p>
-                <p className="text-sm mb-1">{i.phone}</p>
-                <p className="text-sm mb-1">{i.school}</p>
-                {/* <p className="text-sm mb-1">{i.status}</p>
-                <p className="text-sm mb-1">{new Date(i.created_at).toLocaleString()}</p> */}
+                <p className="text-sm"><strong>Email :</strong> {i.email}</p>
+                <p className="text-sm"><strong>Téléphone :</strong> {i.phone}</p>
+                <p className="text-sm"><strong>École :</strong> {i.school || "-"}</p>
 
-                {/* CV */}
+                {/* 📎 CV */}
                 {i.cv && (
-                  <p>
-                    CV:{" "}
+                  <p className="text-sm mt-2">
+                    <strong>CV :</strong>{" "}
                     <a
                       href={i.cv}
+                      download={getFileName(i.cv)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-400 underline"
                     >
-                      Voir / Télécharger
+                      Voir
                     </a>
                   </p>
                 )}
 
-                {/* Lettre de motivation */}
+                {/* 📎 Lettre */}
                 {i.letter && (
-                  <p>
-                    Lettre de motivation:{" "}
+                  <p className="text-sm">
+                    <strong>Lettre :</strong>{" "}
                     <a
                       href={i.letter}
+                      download={getFileName(i.letter)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-400 underline"
                     >
-                      Voir / Télécharger
+                      Voir
                     </a>
                   </p>
                 )}
 
-                <div className="mt-2 flex gap-2">
-                  <button className="btn btn-delete" onClick={() => handleDelete(i.id)}>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => handleDelete(i.id)}
+                  >
                     Supprimer
                   </button>
                 </div>
