@@ -9,13 +9,13 @@ export default function Footer() {
       <div className="footer-inner">
         {/* Adresse */}
         <div className="footer-block">
-          <p>20 Rue jean,</p>
-          <p>123000 paris</p>
+          <p>Quartier Adeticope,</p>
+          <p>Lomé , Togo</p>
         </div>
 
         {/* Contact */}
         <div className="footer-block">
-          <p>034 73 00</p>
+          <p>+33 7 49 84 63 56 / +228 91753075</p>
           <p>
             <a href="mailto:contact@archi-reflex.com">
               contact@archi-reflex.com
@@ -35,7 +35,7 @@ export default function Footer() {
 
       {/* Crédit */}
       <div className="footer-credit">
-        Fait avec amour par <span>Numéria Communication</span>
+        Fait avec amour par <span>OTISDav</span>
       </div>
     </footer>
   );
